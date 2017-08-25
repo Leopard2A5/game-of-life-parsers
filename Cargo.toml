@@ -1,0 +1,7 @@
+[package]
+name = "game-of-life-parsers"
+version = "0.1.0"
+authors = ["René Perschon <rene.perschon@payu.com>"]
+
+[dependencies]
+error-chain = "0.10.0"
