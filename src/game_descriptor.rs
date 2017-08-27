@@ -7,8 +7,8 @@ pub trait GameDescriptor {
 
 #[derive(Debug, PartialEq)]
 pub struct Coord {
-	pub x: u8,
-	pub y: u8,
+	pub x: i16,
+	pub y: i16,
 }
 
 pub struct DefaultGameDescriptor {
@@ -34,7 +34,7 @@ impl DefaultGameDescriptor {
 		self.birth.push(value);
 	}
 
-	pub fn add_live_cell(&mut self, x: u8, y: u8) {
+	pub fn add_live_cell(&mut self, x: i16, y: i16) {
 		self.live_cells.push(Coord{ x: x, y: y });
 	}
 }
