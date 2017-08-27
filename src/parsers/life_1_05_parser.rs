@@ -17,6 +17,7 @@ impl Parser for Life105Parser {
 		let mut ret = DefaultGameDescriptor::new();
 
 		let mut offset = None;
+		let mut line_in_block: i16 = 0;
 		for line in BufReader::new(input).lines() {
 			let line = line.chain_err(|| "failed to read line")?;
 			let line = line.trim();
@@ -25,6 +26,15 @@ impl Parser for Life105Parser {
 				parse_rules(&line, &mut ret)?;
 			} else if line.starts_with("#P") {
 				offset = Some(parse_offset(&line)?);
+				line_in_block = 0;
+			} else if let Some((ox, oy)) = offset {
+				for (index, char) in line.chars().enumerate() {
+					if char == '*' {
+						println!("index: {}, line: {}", index, line_in_block);
+						ret.add_live_cell(index as i16 + ox, line_in_block + oy);
+					}
+				}
+				line_in_block += 1;
 			}
 		}
 
@@ -57,7 +67,7 @@ fn parse_rules(
 	Ok(())
 }
 
-fn parse_offset(line: &str) -> errors::Result<(i8, i8)> {
+fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 	use regex::Regex;
 
 	let regex = Regex::new("#P\\s*([+-]?\\d+)\\s*([+-]?\\d+)\\s*").unwrap();
@@ -66,8 +76,8 @@ fn parse_offset(line: &str) -> errors::Result<(i8, i8)> {
 	let x = captures.get(1).unwrap().as_str();
 	let y = captures.get(2).unwrap().as_str();
 
-	let x = x.parse::<i8>().unwrap();
-	let y = y.parse::<i8>().unwrap();
+	let x = x.parse::<i16>().unwrap();
+	let y = y.parse::<i16>().unwrap();
 
 	Ok((x, y))
 }

@@ -15,8 +15,8 @@ fn fail() {
 	assert_eq!(&[2, 3], gd.survival());
 	assert_eq!(&[1], gd.birth());
 	assert_eq!(&[
-		Coord { x: 1, y: 0 },
-		Coord { x: 2, y: 1 },
-		Coord { x: 0, y: 2 }, Coord { x: 1, y: 2 }, Coord { x: 2, y: 2 }
+		Coord { x:  0, y: -1 },
+		Coord { x:  1, y: 0 },
+		Coord { x: -1, y: 1 }, Coord { x: 0, y: 1 }, Coord { x: 1, y: 1 }
 	], gd.live_cells());
 }
