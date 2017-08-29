@@ -7,7 +7,7 @@ use game_of_life_parsers::Parser;
 use game_of_life_parsers::Life105Parser;
 
 #[test]
-fn fail() {
+fn parse_file() {
 	let file = File::open("tests/life_1_05/glider.life").unwrap();
 	let mut parser = Life105Parser::new();
 
