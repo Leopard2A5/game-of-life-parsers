@@ -5,7 +5,14 @@ extern crate error_chain;
 extern crate regex;
 
 pub mod errors {
-	error_chain!{}
+	error_chain! {
+		errors {
+			InvalidRulesLine(line: String) {
+				description("Invalid rules line"),
+				display("Invalid rules definition in line '{}'", line),
+			}
+		}
+	}
 }
 mod game_descriptor;
 mod parsers;

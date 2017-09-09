@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader, Read};
 use super::Parser;
-use ::errors::{self, ResultExt};
+use ::errors::{self, ResultExt, ErrorKind};
 use ::GameDescriptor;
 use ::game_descriptor::DefaultGameDescriptor;
 
@@ -48,23 +48,27 @@ fn parse_rules(
 ) -> errors::Result<()> {
 	use regex::Regex;
 
-	let regex = Regex::new("#R\\s*(\\d+)\\s*/\\s*(\\d+)\\s*").unwrap();
-	let captures = regex.captures(line).unwrap();
+	let regex = Regex::new("#R\\s*(\\d+)\\s*/\\s*(\\d+)\\s*")
+		.expect("invalid regex!");
 
-	let survival = captures.get(1).unwrap().as_str();
-	let birth = captures.get(2).unwrap().as_str();
+	if let Some(captures) = regex.captures(line) {
+		let survival = captures.get(1).unwrap().as_str();
+		let birth = captures.get(2).unwrap().as_str();
 
-	for char in survival.chars() {
-		let digit = char.to_digit(10).unwrap() as u8;
-		gd.add_survival(digit);
+		for char in survival.chars() {
+			let digit = char.to_digit(10).unwrap() as u8;
+			gd.add_survival(digit);
+		}
+
+		for char in birth.chars() {
+			let digit = char.to_digit(10).unwrap() as u8;
+			gd.add_birth(digit);
+		}
+
+		Ok(())
+	} else {
+		bail!(ErrorKind::InvalidRulesLine(line.into()))
 	}
-
-	for char in birth.chars() {
-		let digit = char.to_digit(10).unwrap() as u8;
-		gd.add_birth(digit);
-	}
-
-	Ok(())
 }
 
 fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
@@ -80,4 +84,21 @@ fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 	let y = y.parse::<i16>().unwrap();
 
 	Ok((x, y))
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use errors::Error;
+	use errors::ErrorKind::*;
+
+	#[test]
+	fn parse_rules_should_err() {
+		let mut gd = DefaultGameDescriptor::new();
+		if let Err(Error(InvalidRulesLine(x), _state)) = parse_rules("#R 23", &mut gd) {
+			assert_eq!("#R 23", x);
+		} else {
+			assert!(false);
+		}
+	}
 }
