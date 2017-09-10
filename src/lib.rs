@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate error_chain;
 extern crate regex;
+extern crate stringreader;
 
 pub mod errors {
 	error_chain! {
@@ -16,7 +17,6 @@ pub mod errors {
 }
 mod game_descriptor;
 mod parsers;
-mod stringreader;
 
 pub use game_descriptor::GameDescriptor;
 pub use game_descriptor::Coord;

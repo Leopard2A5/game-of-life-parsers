@@ -103,7 +103,7 @@ mod test {
 	use super::*;
 	use errors::Error;
 	use errors::ErrorKind::*;
-	use ::stringreader::StringReader;
+	use stringreader::StringReader;
 
 	#[test]
 	fn parse_rules_should_err() {
