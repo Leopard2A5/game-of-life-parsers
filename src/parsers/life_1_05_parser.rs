@@ -101,4 +101,12 @@ mod test {
 			assert!(false);
 		}
 	}
+
+	#[test]
+	fn parse_rules_should_parse_custom_rules() {
+		let mut gd = DefaultGameDescriptor::new();
+		parse_rules("#R24 / 1", &mut gd).unwrap();
+		assert_eq!(&[2, 4], gd.survival());
+		assert_eq!(&[1], gd.birth());
+	}
 }
