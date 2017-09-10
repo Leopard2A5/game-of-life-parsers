@@ -15,6 +15,7 @@ pub mod errors {
 		}
 	}
 }
+
 mod game_descriptor;
 mod parsers;
 
