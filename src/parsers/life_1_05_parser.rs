@@ -52,16 +52,22 @@ fn parse_rules(
 		.expect("invalid regex!");
 
 	if let Some(captures) = regex.captures(line) {
-		let survival = captures.get(1).unwrap().as_str();
-		let birth = captures.get(2).unwrap().as_str();
+		let survival = captures.get(1)
+			.expect("Failed to get regex group")
+			.as_str();
+		let birth = captures.get(2)
+			.expect("Failed to get regex group")
+			.as_str();
 
 		for char in survival.chars() {
-			let digit = char.to_digit(10).unwrap() as u8;
+			let digit = char.to_digit(10)
+				.expect("Failed to parse u8") as u8;
 			gd.add_survival(digit);
 		}
 
 		for char in birth.chars() {
-			let digit = char.to_digit(10).unwrap() as u8;
+			let digit = char.to_digit(10)
+				.expect("Failed to parse u8") as u8;
 			gd.add_birth(digit);
 		}
 
