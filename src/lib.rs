@@ -17,6 +17,7 @@ pub mod errors {
 }
 
 mod game_descriptor;
+mod default_game_descriptor;
 mod parsers;
 
 pub use game_descriptor::GameDescriptor;

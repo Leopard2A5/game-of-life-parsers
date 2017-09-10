@@ -2,7 +2,7 @@ use std::io::{BufRead, BufReader, Read};
 use super::Parser;
 use ::errors::{self, ResultExt, ErrorKind};
 use ::GameDescriptor;
-use ::game_descriptor::DefaultGameDescriptor;
+use ::default_game_descriptor::DefaultGameDescriptor;
 
 pub struct Life105Parser {}
 
