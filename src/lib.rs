@@ -16,6 +16,7 @@ pub mod errors {
 }
 mod game_descriptor;
 mod parsers;
+mod stringreader;
 
 pub use game_descriptor::GameDescriptor;
 pub use game_descriptor::Coord;

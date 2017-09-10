@@ -34,6 +34,11 @@ impl DefaultGameDescriptor {
 		self.birth.push(value);
 	}
 
+	pub fn clear_rules(&mut self) {
+		self.survival.clear();
+		self.birth.clear();
+	}
+
 	pub fn add_live_cell(&mut self, x: i16, y: i16) {
 		self.live_cells.push(Coord{ x: x, y: y });
 	}

@@ -23,7 +23,13 @@ impl Parser for Life105Parser {
 			let line = line.trim();
 
 			if line.starts_with("#R") {
+				ret.clear_rules();
 				parse_rules(&line, &mut ret)?;
+			} else if line.starts_with("#N") {
+				ret.clear_rules();
+				ret.add_survival(2);
+				ret.add_survival(3);
+				ret.add_birth(3);
 			} else if line.starts_with("#P") {
 				offset = Some(parse_offset(&line)?);
 				line_in_block = 0;
@@ -97,6 +103,7 @@ mod test {
 	use super::*;
 	use errors::Error;
 	use errors::ErrorKind::*;
+	use ::stringreader::StringReader;
 
 	#[test]
 	fn parse_rules_should_err() {
@@ -114,5 +121,13 @@ mod test {
 		parse_rules("#R24 / 1", &mut gd).unwrap();
 		assert_eq!(&[2, 4], gd.survival());
 		assert_eq!(&[1], gd.birth());
+	}
+
+	#[test]
+	fn parser_should_understand_default_rules() {
+		let mut parser = Life105Parser::new();
+		let gd = parser.parse(StringReader::new("#N")).unwrap();
+		assert_eq!(&[2, 3], gd.survival());
+		assert_eq!(&[3], gd.birth());
 	}
 }
