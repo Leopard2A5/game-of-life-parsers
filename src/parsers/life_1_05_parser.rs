@@ -36,7 +36,6 @@ impl Parser for Life105Parser {
 			} else if let Some((ox, oy)) = offset {
 				for (index, char) in line.chars().enumerate() {
 					if char == '*' {
-						println!("index: {}, line: {}", index, line_in_block);
 						ret.add_live_cell(index as i16 + ox, line_in_block + oy);
 					}
 				}
