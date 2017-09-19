@@ -3,7 +3,6 @@
 #[macro_use]
 extern crate error_chain;
 extern crate regex;
-extern crate stringreader;
 
 pub mod errors {
 	error_chain! {

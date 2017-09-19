@@ -102,7 +102,6 @@ mod test {
 	use super::*;
 	use errors::Error;
 	use errors::ErrorKind::*;
-	use stringreader::StringReader;
 
 	#[test]
 	fn parse_rules_should_err() {
@@ -125,7 +124,7 @@ mod test {
 	#[test]
 	fn parser_should_understand_default_rules() {
 		let mut parser = Life105Parser::new();
-		let gd = parser.parse(StringReader::new("#N")).unwrap();
+		let gd = parser.parse("#N".as_bytes()).unwrap();
 		assert_eq!(&[2, 3], gd.survival());
 		assert_eq!(&[3], gd.birth());
 	}

@@ -86,7 +86,6 @@ mod test {
 	use ::Life105Parser;
 	use ::Parser;
 	use ::Coord;
-	use stringreader::StringReader;
 
 	#[test]
 	fn no_negative_coords_should_work() {
@@ -98,7 +97,7 @@ mod test {
 *..
 "#;
 		let mut parser = Life105Parser::new();
-		let gd = parser.parse(StringReader::new(input))
+		let gd = parser.parse(input.as_bytes())
 			.unwrap();
 		assert_eq!(&[ Coord {x: 1, y: -2}, Coord {x: -1, y: 0} ], gd.live_cells());
 
