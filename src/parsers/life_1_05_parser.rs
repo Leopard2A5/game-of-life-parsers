@@ -4,9 +4,11 @@ use ::errors::{self, ResultExt, ErrorKind};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 
+/// Parser for files in the life 1.05 format.
 pub struct Life105Parser {}
 
 impl Life105Parser {
+	/// Construct a new instance.
 	pub fn new() -> Self {
 		Life105Parser{}
 	}
