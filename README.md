@@ -1,5 +1,7 @@
 # Game of Life parsers
 
+[![Build Status](https://travis-ci.org/Leopard2A5/game-of-life-parsers.svg?branch=master)](https://travis-ci.org/Leopard2A5/game-of-life-parsers)
+
 Collection of parsers for Conway's game of life.
 
 Currently supported file formats:
