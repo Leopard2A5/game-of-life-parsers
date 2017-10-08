@@ -1,10 +1,12 @@
 mod life_1_05_parser;
+mod life_1_06_parser;
 
 use std::io::Read;
 use ::errors;
 use ::GameDescriptor;
 
 pub use self::life_1_05_parser::Life105Parser;
+pub use self::life_1_06_parser::Life106Parser;
 
 /// Specifies a common interface for all game of life parser implementations.
 pub trait Parser {

@@ -48,3 +48,4 @@ pub use game_descriptor::GameDescriptor;
 pub use game_descriptor::Coord;
 pub use parsers::Parser;
 pub use parsers::Life105Parser;
+pub use parsers::Life106Parser;
