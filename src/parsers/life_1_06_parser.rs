@@ -1,5 +1,5 @@
 use super::Parser;
-use ::errors::{self, ResultExt, ErrorKind};
+use ::errors::{self, ResultExt};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 use std::io::{Read, BufRead, BufReader};
@@ -17,7 +17,7 @@ impl Life106Parser {
 
 impl Parser for Life106Parser {
 	fn parse<T: Read>(&mut self, input: T) -> errors::Result<Box<GameDescriptor>> {
-		let mut reader = BufReader::new(input);
+		let reader = BufReader::new(input);
 		let mut ret = DefaultGameDescriptor::new();
 		let regex = Regex::new("(\\d+)\\s+(\\d+)")
 			.expect("invalid regex!");
