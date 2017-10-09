@@ -8,6 +8,7 @@ Collection of parsers for Conway's game of life.
 Currently supported file formats:
 
 * Life 1.05
+* Life 1.06
 
 ## Usage
 ```rust
