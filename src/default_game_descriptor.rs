@@ -97,7 +97,7 @@ mod test {
 *..
 "#;
 		let mut parser = Life105Parser::new();
-		let gd = parser.parse(input.as_bytes())
+		let gd = parser.parse(Box::new(input.as_bytes()))
 			.unwrap();
 		assert_eq!(&[ Coord {x: 1, y: -2}, Coord {x: -1, y: 0} ], gd.live_cells());
 

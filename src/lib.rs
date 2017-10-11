@@ -17,7 +17,7 @@
 //! 	// let file = File::open("file.life").unwrap();
 //! 	let file = "#N\n#P 0 0\n..*".as_bytes();
 //! 	let mut parser = Life105Parser::new();
-//! 	let game_descriptor =  parser.parse(file).unwrap();
+//! 	let game_descriptor =  parser.parse(Box::new(file)).unwrap();
 //! 	for live_cell in game_descriptor.live_cells() {
 //! 		// iterate overe live cells
 //!		}

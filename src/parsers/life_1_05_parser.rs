@@ -15,7 +15,7 @@ impl Life105Parser {
 }
 
 impl Parser for Life105Parser {
-	fn parse<T: Read>(&mut self, input: T) -> errors::Result<Box<GameDescriptor>> {
+	fn parse(&mut self, input: Box<Read>) -> errors::Result<Box<GameDescriptor>> {
 		let mut ret = DefaultGameDescriptor::new();
 
 		let mut offset = None;
@@ -126,7 +126,7 @@ mod test {
 	#[test]
 	fn parser_should_understand_default_rules() {
 		let mut parser = Life105Parser::new();
-		let gd = parser.parse("#N".as_bytes()).unwrap();
+		let gd = parser.parse(Box::new("#N".as_bytes())).unwrap();
 		assert_eq!(&[2, 3], gd.survival());
 		assert_eq!(&[3], gd.birth());
 	}
