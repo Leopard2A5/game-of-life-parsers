@@ -11,7 +11,7 @@ fn parse_file() {
 	let file = File::open("tests/life_1_05/glider.life").unwrap();
 	let mut parser = Life105Parser::new();
 
-	let gd: Box<GameDescriptor> = parser.parse(file).unwrap();
+	let gd: Box<GameDescriptor> = parser.parse(Box::new(file)).unwrap();
 	assert_eq!(&[2, 3], gd.survival());
 	assert_eq!(&[1], gd.birth());
 	assert_eq!(&[

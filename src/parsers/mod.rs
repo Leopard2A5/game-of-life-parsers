@@ -11,5 +11,5 @@ pub use self::life_1_06_parser::Life106Parser;
 /// Specifies a common interface for all game of life parser implementations.
 pub trait Parser {
 	/// Parse the given input, which can be any implementor of `std::io::Read`, e.g. `std::fs::File`.
-	fn parse<T: Read>(&mut self, input: T) -> errors::Result<Box<GameDescriptor>>;
+	fn parse(&mut self, input: Box<Read>) -> errors::Result<Box<GameDescriptor>>;
 }
