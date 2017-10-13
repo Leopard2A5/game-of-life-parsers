@@ -1,5 +1,5 @@
 use super::Parser;
-use ::errors::{self, ResultExt};
+use ::errors;
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 use std::io::{Read, BufRead, BufReader};
@@ -23,7 +23,8 @@ impl Parser for Life106Parser {
 			.expect("invalid regex!");
 
 		for line in reader.lines() {
-			let line = line.chain_err(|| "failed to read line")?;
+			let line = line.
+				map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
 
 			if regex.is_match(line) {
@@ -35,5 +36,32 @@ impl Parser for Life106Parser {
 		}
 
 		Ok(Box::new(ret))
+	}
+}
+
+#[cfg(test)]
+mod test {
+	extern crate io_test_util;
+
+	use super::*;
+	use std::io;
+
+	#[test]
+	fn should_correctly_handle_io_errors() {
+		use self::io_test_util;
+
+		let mut parser = Life106Parser::new();
+		let reader = io_test_util::ErrReader::new(io::ErrorKind::NotFound);
+
+		if let Err(parser_error) = parser.parse(Box::new(reader)) {
+			match *parser_error.kind() {
+				errors::ErrorKind::IOError(inner_error) => {
+					assert_eq!(io::ErrorKind::NotFound, inner_error);
+				},
+				_ => panic!("wrong error kind!")
+			}
+		} else {
+			panic!("No error returned!")
+		}
 	}
 }
