@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader, Read};
 use super::Parser;
-use ::errors::{self, ResultExt, ErrorKind};
+use ::errors::{self, ErrorKind};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 
@@ -21,7 +21,8 @@ impl Parser for Life105Parser {
 		let mut offset = None;
 		let mut line_in_block: i16 = 0;
 		for line in BufReader::new(input).lines() {
-			let line = line.chain_err(|| "failed to read line")?;
+			let line = line
+				.map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
 
 			if line.starts_with("#R") {
@@ -101,9 +102,12 @@ fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 
 #[cfg(test)]
 mod test {
+	extern crate io_test_util;
+
 	use super::*;
 	use errors::Error;
 	use errors::ErrorKind::*;
+	use std::io;
 
 	#[test]
 	fn parse_rules_should_err() {
@@ -129,5 +133,23 @@ mod test {
 		let gd = parser.parse(Box::new("#N".as_bytes())).unwrap();
 		assert_eq!(&[2, 3], gd.survival());
 		assert_eq!(&[3], gd.birth());
+	}
+
+	#[test]
+	fn should_correctly_handle_io_errors() {
+		use self::io_test_util;
+
+		let mut parser = Life105Parser::new();
+		let reader = io_test_util::ErrReader::new(io::ErrorKind::BrokenPipe);
+		if let Err(parser_error) = parser.parse(Box::new(reader)) {
+			match *parser_error.kind() {
+				errors::ErrorKind::IOError(inner_error) => {
+					assert_eq!(io::ErrorKind::BrokenPipe, inner_error);
+				},
+				_ => panic!("wrong error kind!")
+			}
+		} else {
+			panic!("No error returned!")
+		}
 	}
 }

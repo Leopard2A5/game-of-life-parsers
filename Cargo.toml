@@ -15,3 +15,6 @@ travis-ci = { repository = "Leopard2A5/game-of-life-parsers", branch = "master" 
 [dependencies]
 error-chain = "0.11.0"
 regex = "0.2.2"
+
+[dev-dependencies]
+io-test-util = "*"
