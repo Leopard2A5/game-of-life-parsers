@@ -39,6 +39,7 @@ pub mod errors {
 				display("Invalid rules definition in line '{}'", line),
 			}
 			IOError(error: io::ErrorKind)
+			InvalidFileFormat
 		}
 	}
 }
