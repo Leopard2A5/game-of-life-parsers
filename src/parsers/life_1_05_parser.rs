@@ -28,6 +28,8 @@ impl Parser for Life105Parser {
 			if line.starts_with("#R") {
 				ret.clear_rules();
 				parse_rules(&line, &mut ret)?;
+			} else if line.starts_with("#Life") {
+				check_file_format(line)?;
 			} else if line.starts_with("#N") {
 				ret.clear_rules();
 				ret.add_survival(2);
@@ -88,7 +90,7 @@ fn parse_rules(
 fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 	use regex::Regex;
 
-	let regex = Regex::new("#P\\s*([+-]?\\d+)\\s*([+-]?\\d+)\\s*").unwrap();
+	let regex = Regex::new("#P\\s*([+-]?\\d+)\\s*([+-]?\\d+)\\s*").expect("Invalid regex");
 	let captures = regex.captures(line).unwrap();
 
 	let x = captures.get(1).unwrap().as_str();
@@ -98,6 +100,17 @@ fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 	let y = y.parse::<i16>().unwrap();
 
 	Ok((x, y))
+}
+
+fn check_file_format(line: &str) -> errors::Result<()> {
+	use regex::Regex;
+
+	let regex = Regex::new("#Life\\s+1.05").expect("Invalid regex");
+	if regex.is_match(line) {
+		Ok(())
+	} else {
+		bail!(ErrorKind::InvalidFileFormat)
+	}
 }
 
 #[cfg(test)]
@@ -141,15 +154,24 @@ mod test {
 
 		let mut parser = Life105Parser::new();
 		let reader = io_test_util::ErrReader::new(io::ErrorKind::BrokenPipe);
-		if let Err(parser_error) = parser.parse(Box::new(reader)) {
-			match *parser_error.kind() {
-				errors::ErrorKind::IOError(inner_error) => {
-					assert_eq!(io::ErrorKind::BrokenPipe, inner_error);
-				},
-				_ => panic!("wrong error kind!")
-			}
-		} else {
-			panic!("No error returned!")
+
+		match parser.parse(Box::new(reader)) {
+			Err(errors::Error(errors::ErrorKind::IOError(io::ErrorKind::BrokenPipe), _)) => {},
+			Err(_) => panic!("Wrong error returned!"),
+			_ => panic!("No error returned!")
+		}
+	}
+
+	#[test]
+	fn should_throw_error_on_wrong_format_annotation() {
+		let mut parser = Life105Parser::new();
+		let input = Box::new("#Life 1.06\n0 0\n1 2".as_bytes());
+		let res = parser.parse(input);
+		match res {
+			Err(errors::Error(errors::ErrorKind::InvalidFileFormat, _)) => {},
+			Err(errors::Error(x, _)) => panic!("Unexpected error {}", x),
+			_ => panic!("No error thrown!"),
+
 		}
 	}
 }
