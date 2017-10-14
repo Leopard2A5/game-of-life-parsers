@@ -66,15 +66,10 @@ mod test {
 		let mut parser = Life106Parser::new();
 		let reader = io_test_util::ErrReader::new(io::ErrorKind::NotFound);
 
-		if let Err(parser_error) = parser.parse(Box::new(reader)) {
-			match *parser_error.kind() {
-				errors::ErrorKind::IOError(inner_error) => {
-					assert_eq!(io::ErrorKind::NotFound, inner_error);
-				},
-				_ => panic!("wrong error kind!")
-			}
-		} else {
-			panic!("No error returned!")
+		match parser.parse(Box::new(reader)) {
+			Err(errors::Error(errors::ErrorKind::IOError(io::ErrorKind::NotFound), _)) => {},
+			Err(_) => panic!("Wrong error returned!"),
+			Ok(_) => panic!("No error returned!")
 		}
 	}
 
