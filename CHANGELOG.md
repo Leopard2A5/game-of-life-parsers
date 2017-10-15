@@ -7,6 +7,7 @@
 * Fixed error with malformed block header lines in life 1.05 files
 * Added line number to `errors::ErrorKind::MalformedLine`
 * Removed `errors::ErrorKind::InvalidRulesLine` in favor of `errors::ErrorKind::MalformedLine`
+* Now correctly handling block offsets in 1.05 parser and cell coordinates in 1.06 parser that don't fit into an `i16`. Both will raise a `errors::ErrorKind::CoordinateOutOfRange`
 
 ## 1.0.0
 * Input to parsers is now boxed, to make `Parser` a proper trait object
