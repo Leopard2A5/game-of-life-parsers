@@ -4,6 +4,7 @@
 * Improved handling of IO errors
 * Parsers now raise error when encountering format tag of different format
 * Added this changelog
+* Fixed error with malformed block header lines in life 1.05 files
 
 ## 1.0.0
 * Input to parsers is now boxed, to make `Parser` a proper trait object
