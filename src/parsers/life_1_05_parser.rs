@@ -91,15 +91,17 @@ fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 	use regex::Regex;
 
 	let regex = Regex::new("#P\\s*([+-]?\\d+)\\s*([+-]?\\d+)\\s*").expect("Invalid regex");
-	let captures = regex.captures(line).unwrap();
+	if let Some(captures) = regex.captures(line) {
+		let x = captures.get(1).unwrap().as_str();
+		let y = captures.get(2).unwrap().as_str();
 
-	let x = captures.get(1).unwrap().as_str();
-	let y = captures.get(2).unwrap().as_str();
+		let x = x.parse::<i16>().unwrap();
+		let y = y.parse::<i16>().unwrap();
 
-	let x = x.parse::<i16>().unwrap();
-	let y = y.parse::<i16>().unwrap();
-
-	Ok((x, y))
+		Ok((x, y))
+	} else {
+		bail!(errors::ErrorKind::MalformedLine)
+	}
 }
 
 fn check_file_format(line: &str) -> errors::Result<()> {
@@ -172,6 +174,17 @@ mod test {
 			Err(errors::Error(x, _)) => panic!("Unexpected error {}", x),
 			_ => panic!("No error thrown!"),
 
+		}
+	}
+
+	#[test]
+	fn should_raise_error_on_invalid_block_header() {
+		let mut parser = Life105Parser::new();
+		let input = "#P 0 a".as_bytes();
+		match parser.parse(Box::new(input)) {
+			Err(errors::Error(errors::ErrorKind::MalformedLine, _)) => {},
+			Err(_) => panic!("Wrong error thrown!"),
+			_ => panic!("No error thrown!")
 		}
 	}
 }
