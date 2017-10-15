@@ -1,5 +1,5 @@
 use super::Parser;
-use ::errors::{self, ErrorKind};
+use ::errors::{self, Error, ErrorKind};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 use std::io::{Read, BufRead, BufReader};
@@ -22,7 +22,8 @@ impl Parser for Life106Parser {
 		let regex = Regex::new("(\\d+)\\s+(\\d+)")
 			.expect("invalid regex!");
 
-		for line in reader.lines() {
+		for (line_num, line) in reader.lines().enumerate() {
+			let line_num = line_num + 1;
 			let line = line.
 				map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
@@ -30,10 +31,13 @@ impl Parser for Life106Parser {
 			if line.starts_with("#Life") {
 				check_file_format(line)?;
 			} else if regex.is_match(line) {
-				let coords: Vec<i16> = line.split_whitespace()
-					.map(|it| it.parse::<i16>().expect("Error parsing int!"))
-					.collect();
-				ret.add_live_cell(coords[0], coords[1]);
+				let coords: Vec<&str> = line.split_whitespace().collect();
+				let x = coords[0].parse::<i16>()
+					.map_err(|_| Error::from(ErrorKind::CoordinateOutOfRange(line_num)))?;
+				let y = coords[1].parse::<i16>()
+					.map_err(|_| Error::from(ErrorKind::CoordinateOutOfRange(line_num)))?;
+
+				ret.add_live_cell(x, y);
 			}
 		}
 
@@ -58,6 +62,8 @@ mod test {
 
 	use super::*;
 	use std::io;
+	use errors::Error;
+	use errors::ErrorKind::*;
 
 	#[test]
 	fn should_correctly_handle_io_errors() {
@@ -83,6 +89,17 @@ mod test {
 			Err(errors::Error(x, _)) => panic!("Unexpected error {}", x),
 			_ => panic!("No error thrown!"),
 
+		}
+	}
+
+	#[test]
+	fn should_handle_too_big_coordinates() {
+		let mut parser = Life106Parser::new();
+		let input = Box::new("32768 0".as_bytes());
+		match parser.parse(input) {
+			Err(Error(CoordinateOutOfRange(1), _)) => {},
+			Err(_) => panic!("Wrong error thrown!"),
+			_ => panic!("No error thrown!")
 		}
 	}
 }
