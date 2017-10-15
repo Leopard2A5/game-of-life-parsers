@@ -34,13 +34,9 @@ pub mod errors {
 
 	error_chain! {
 		errors {
-			InvalidRulesLine(line: String) {
-				description("Invalid rules line"),
-				display("Invalid rules definition in line '{}'", line),
-			}
 			IOError(error: io::ErrorKind)
 			InvalidFileFormat
-			MalformedLine
+			MalformedLine(line: usize)
 		}
 	}
 }
