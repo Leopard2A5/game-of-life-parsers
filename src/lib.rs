@@ -40,7 +40,7 @@ pub mod errors {
 			}
 			IOError(error: io::ErrorKind)
 			InvalidFileFormat
-			MalformedLine
+			MalformedLine(line: usize)
 		}
 	}
 }

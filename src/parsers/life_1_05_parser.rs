@@ -20,7 +20,8 @@ impl Parser for Life105Parser {
 
 		let mut offset = None;
 		let mut line_in_block: i16 = 0;
-		for line in BufReader::new(input).lines() {
+		for (line_num, line) in BufReader::new(input).lines().enumerate() {
+			let line_num = line_num + 1; // line numbers don't start at 0
 			let line = line
 				.map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
@@ -36,7 +37,7 @@ impl Parser for Life105Parser {
 				ret.add_survival(3);
 				ret.add_birth(3);
 			} else if line.starts_with("#P") {
-				offset = Some(parse_offset(&line)?);
+				offset = Some(parse_offset(line_num, &line)?);
 				line_in_block = 0;
 			} else if let Some((ox, oy)) = offset {
 				for (index, char) in line.chars().enumerate() {
@@ -87,7 +88,10 @@ fn parse_rules(
 	}
 }
 
-fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
+fn parse_offset(
+	line_num: usize,
+	line: &str,
+) -> errors::Result<(i16, i16)> {
 	use regex::Regex;
 
 	let regex = Regex::new("#P\\s*([+-]?\\d+)\\s*([+-]?\\d+)\\s*").expect("Invalid regex");
@@ -100,7 +104,7 @@ fn parse_offset(line: &str) -> errors::Result<(i16, i16)> {
 
 		Ok((x, y))
 	} else {
-		bail!(errors::ErrorKind::MalformedLine)
+		bail!(errors::ErrorKind::MalformedLine(line_num))
 	}
 }
 
@@ -182,7 +186,7 @@ mod test {
 		let mut parser = Life105Parser::new();
 		let input = "#P 0 a".as_bytes();
 		match parser.parse(Box::new(input)) {
-			Err(errors::Error(errors::ErrorKind::MalformedLine, _)) => {},
+			Err(errors::Error(errors::ErrorKind::MalformedLine(1), _)) => {},
 			Err(_) => panic!("Wrong error thrown!"),
 			_ => panic!("No error thrown!")
 		}
