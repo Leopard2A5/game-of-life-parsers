@@ -37,6 +37,7 @@ pub mod errors {
 			IOError(error: io::ErrorKind)
 			InvalidFileFormat
 			MalformedLine(line: usize)
+			CoordinateOutOfRange(line: usize)
 		}
 	}
 }
