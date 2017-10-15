@@ -28,7 +28,7 @@ impl Parser for Life105Parser {
 
 			if line.starts_with("#R") {
 				ret.clear_rules();
-				parse_rules(&line, &mut ret)?;
+				parse_rules(line_num, &line, &mut ret)?;
 			} else if line.starts_with("#Life") {
 				check_file_format(line)?;
 			} else if line.starts_with("#N") {
@@ -54,6 +54,7 @@ impl Parser for Life105Parser {
 }
 
 fn parse_rules(
+	line_num: usize,
 	line: &str,
 	gd: &mut DefaultGameDescriptor
 ) -> errors::Result<()> {
@@ -84,7 +85,7 @@ fn parse_rules(
 
 		Ok(())
 	} else {
-		bail!(ErrorKind::InvalidRulesLine(line.into()))
+		bail!(ErrorKind::MalformedLine(line_num))
 	}
 }
 
@@ -131,17 +132,17 @@ mod test {
 	#[test]
 	fn parse_rules_should_err() {
 		let mut gd = DefaultGameDescriptor::new();
-		if let Err(Error(InvalidRulesLine(x), _state)) = parse_rules("#R 23", &mut gd) {
-			assert_eq!("#R 23", x);
-		} else {
-			assert!(false);
+		match parse_rules(5, "#R 23", &mut gd) {
+			Err(Error(MalformedLine(5), _)) => {},
+			Err(_) => panic!("Wrong error thrown!"),
+			_ => panic!("No error thrown!")
 		}
 	}
 
 	#[test]
 	fn parse_rules_should_parse_custom_rules() {
 		let mut gd = DefaultGameDescriptor::new();
-		parse_rules("#R24 / 1", &mut gd).unwrap();
+		parse_rules(1, "#R24 / 1", &mut gd).unwrap();
 		assert_eq!(&[2, 4], gd.survival());
 		assert_eq!(&[1], gd.birth());
 	}
@@ -162,7 +163,7 @@ mod test {
 		let reader = io_test_util::ErrReader::new(io::ErrorKind::BrokenPipe);
 
 		match parser.parse(Box::new(reader)) {
-			Err(errors::Error(errors::ErrorKind::IOError(io::ErrorKind::BrokenPipe), _)) => {},
+			Err(Error(IOError(io::ErrorKind::BrokenPipe), _)) => {},
 			Err(_) => panic!("Wrong error returned!"),
 			_ => panic!("No error returned!")
 		}
@@ -174,8 +175,8 @@ mod test {
 		let input = Box::new("#Life 1.06\n0 0\n1 2".as_bytes());
 		let res = parser.parse(input);
 		match res {
-			Err(errors::Error(errors::ErrorKind::InvalidFileFormat, _)) => {},
-			Err(errors::Error(x, _)) => panic!("Unexpected error {}", x),
+			Err(Error(InvalidFileFormat, _)) => {},
+			Err(Error(x, _)) => panic!("Unexpected error {}", x),
 			_ => panic!("No error thrown!"),
 
 		}
@@ -186,7 +187,7 @@ mod test {
 		let mut parser = Life105Parser::new();
 		let input = "#P 0 a".as_bytes();
 		match parser.parse(Box::new(input)) {
-			Err(errors::Error(errors::ErrorKind::MalformedLine(1), _)) => {},
+			Err(Error(MalformedLine(1), _)) => {},
 			Err(_) => panic!("Wrong error thrown!"),
 			_ => panic!("No error thrown!")
 		}
