@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader, Read};
 use super::Parser;
-use ::errors::{self, ErrorKind};
+use ::errors::{self, Error, ErrorKind};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
 
@@ -100,8 +100,10 @@ fn parse_offset(
 		let x = captures.get(1).unwrap().as_str();
 		let y = captures.get(2).unwrap().as_str();
 
-		let x = x.parse::<i16>().unwrap();
-		let y = y.parse::<i16>().unwrap();
+		let x = x.parse::<i16>()
+			.map_err(|_| Error::from(ErrorKind::CoordinateOutOfRange(line_num)))?;
+		let y = y.parse::<i16>()
+			.map_err(|_| Error::from(ErrorKind::CoordinateOutOfRange(line_num)))?;
 
 		Ok((x, y))
 	} else {
@@ -190,6 +192,15 @@ mod test {
 			Err(Error(MalformedLine(1), _)) => {},
 			Err(_) => panic!("Wrong error thrown!"),
 			_ => panic!("No error thrown!")
+		}
+	}
+
+	#[test]
+	fn parse_offset_should_handle_too_big_coords() {
+		match parse_offset(1, "#P 0 32768") {
+			Err(Error(CoordinateOutOfRange(1), _)) => {},
+			Err(_) => panic!("Wrong error thrown!"),
+			Ok(_) => panic!("No error thrown!")
 		}
 	}
 }
