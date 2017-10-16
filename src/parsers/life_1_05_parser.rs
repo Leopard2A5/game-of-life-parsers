@@ -41,8 +41,10 @@ impl Parser for Life105Parser {
 				line_in_block = 0;
 			} else if let Some((ox, oy)) = offset {
 				for (index, char) in line.chars().enumerate() {
-					if char == '*' {
-						ret.add_live_cell(index as i16 + ox, line_in_block + oy);
+					match char {
+						'*' => ret.add_live_cell(index as i16 + ox, line_in_block + oy),
+						'.' => {},
+						_ => bail!(ErrorKind::MalformedLine(line_num))
 					}
 				}
 				line_in_block += 1;
@@ -201,6 +203,16 @@ mod test {
 			Err(Error(CoordinateOutOfRange(1), _)) => {},
 			Err(_) => panic!("Wrong error thrown!"),
 			Ok(_) => panic!("No error thrown!")
+		}
+	}
+
+	#[test]
+	fn should_raise_error_on_unexpected_character_in_block() {
+		let input = Box::new("#P -1 -1\n..*#".as_bytes());
+		let mut parser = Life105Parser::new();
+		match parser.parse(input) {
+			Err(Error(MalformedLine(2), _)) => {},
+			_ => panic!("Expected MalformedLine")
 		}
 	}
 }
