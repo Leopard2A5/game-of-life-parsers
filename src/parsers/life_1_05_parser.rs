@@ -223,12 +223,12 @@ mod test {
 
 	#[test]
 	fn should_handle_too_big_horizontal_coords() {
-		let input = Box::new("#P 32768 0\n*".as_bytes());
+		let input = Box::new("#P 32767 0\n**".as_bytes());
 
 		let mut parser = Life105Parser::new();
 		let result = parser.parse(input);
 		match result {
-			Err(Error(CoordinateOutOfRange(1), _)) => {},
+			Err(Error(CoordinateOutOfRange(2), _)) => {},
 			_ => panic!("Expected CoordinateOutOfRange")
 		}
 	}
