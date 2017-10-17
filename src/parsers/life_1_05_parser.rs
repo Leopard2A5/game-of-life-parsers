@@ -15,7 +15,7 @@ impl Life105Parser {
 }
 
 impl Parser for Life105Parser {
-	fn parse(&mut self, input: Box<Read>) -> errors::Result<Box<GameDescriptor>> {
+	fn parse<'a>(&mut self, input: Box<Read + 'a>) -> errors::Result<Box<GameDescriptor>> {
 		let mut ret = DefaultGameDescriptor::new();
 
 		let mut offset = None;
