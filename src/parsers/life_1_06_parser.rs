@@ -16,7 +16,7 @@ impl Life106Parser {
 }
 
 impl Parser for Life106Parser {
-	fn parse(&mut self, input: Box<Read>) -> errors::Result<Box<GameDescriptor>> {
+	fn parse<'a>(&mut self, input: Box<Read + 'a>) -> errors::Result<Box<GameDescriptor>> {
 		let reader = BufReader::new(input);
 		let mut ret = DefaultGameDescriptor::new();
 		let regex = Regex::new("(\\d+)\\s+(\\d+)")

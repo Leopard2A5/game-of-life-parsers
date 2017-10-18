@@ -3,6 +3,7 @@ use super::Parser;
 use ::errors::{self, Error, ErrorKind};
 use ::GameDescriptor;
 use ::default_game_descriptor::DefaultGameDescriptor;
+use std::i16;
 
 /// Parser for files in the life 1.05 format.
 pub struct Life105Parser {}
@@ -15,7 +16,7 @@ impl Life105Parser {
 }
 
 impl Parser for Life105Parser {
-	fn parse(&mut self, input: Box<Read>) -> errors::Result<Box<GameDescriptor>> {
+	fn parse<'a>(&mut self, input: Box<Read + 'a>) -> errors::Result<Box<GameDescriptor>> {
 		let mut ret = DefaultGameDescriptor::new();
 
 		let mut offset = None;
@@ -41,6 +42,14 @@ impl Parser for Life105Parser {
 				line_in_block = 0;
 			} else if let Some((ox, oy)) = offset {
 				for (index, char) in line.chars().enumerate() {
+					let index_with_offset = index as i32 + ox as i32;
+					if index_with_offset > i16::MAX as i32 {
+						bail!(ErrorKind::CoordinateOutOfRange(line_num));
+					}
+					let line_in_block_with_offset = line_in_block as i32 + oy as i32;
+					if line_in_block_with_offset > i16::MAX as i32 {
+						bail!(ErrorKind::CoordinateOutOfRange(line_num));
+					}
 					match char {
 						'*' => ret.add_live_cell(index as i16 + ox, line_in_block + oy),
 						'.' => {},
@@ -213,6 +222,31 @@ mod test {
 		match parser.parse(input) {
 			Err(Error(MalformedLine(2), _)) => {},
 			_ => panic!("Expected MalformedLine")
+		}
+	}
+
+	#[test]
+	fn should_handle_too_big_horizontal_coords() {
+		let input = Box::new("#P 32767 0\n**".as_bytes());
+
+		let mut parser = Life105Parser::new();
+		let result = parser.parse(input);
+		match result {
+			Err(Error(CoordinateOutOfRange(2), _)) => {},
+			_ => panic!("Expected CoordinateOutOfRange")
+		}
+	}
+
+	#[test]
+	fn should_handle_too_big_vertical_coords() {
+		let input = Box::new("#P 0 32767\n.\n*".as_bytes());
+
+		let mut parser = Life105Parser::new();
+		let result = parser.parse(input);
+		match result {
+			Err(Error(CoordinateOutOfRange(2), _)) => {},
+			Err(x) => println!("XXX {:?}", x),
+			_ => panic!("Expected CoordinateOutOfRange")
 		}
 	}
 }
