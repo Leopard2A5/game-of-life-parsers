@@ -43,7 +43,11 @@ impl Parser for Life105Parser {
 			} else if let Some((ox, oy)) = offset {
 				for (index, char) in line.chars().enumerate() {
 					let index_with_offset = index as i32 + ox as i32;
-					if index_with_offset > i16::MAX as i32 || index_with_offset < i16::MIN as i32 {
+					if index_with_offset > i16::MAX as i32 {
+						bail!(ErrorKind::CoordinateOutOfRange(line_num));
+					}
+					let line_in_block_with_offset = line_in_block as i32 + oy as i32;
+					if line_in_block_with_offset > i16::MAX as i32 {
 						bail!(ErrorKind::CoordinateOutOfRange(line_num));
 					}
 					match char {
@@ -229,6 +233,19 @@ mod test {
 		let result = parser.parse(input);
 		match result {
 			Err(Error(CoordinateOutOfRange(2), _)) => {},
+			_ => panic!("Expected CoordinateOutOfRange")
+		}
+	}
+
+	#[test]
+	fn should_handle_too_big_vertical_coords() {
+		let input = Box::new("#P 0 32767\n.\n*".as_bytes());
+
+		let mut parser = Life105Parser::new();
+		let result = parser.parse(input);
+		match result {
+			Err(Error(CoordinateOutOfRange(2), _)) => {},
+			Err(x) => println!("XXX {:?}", x),
 			_ => panic!("Expected CoordinateOutOfRange")
 		}
 	}
