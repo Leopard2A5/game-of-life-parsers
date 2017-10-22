@@ -1,6 +1,6 @@
 [package]
 name = "game-of-life-parsers"
-version = "2.0.0"
+version = "2.0.1"
 authors = ["René Perschon <rene.perschon@payu.com>"]
 description = "Collection of parsers for Conway's game of life."
 documentation = "https://docs.rs/game-of-life-parsers/"
