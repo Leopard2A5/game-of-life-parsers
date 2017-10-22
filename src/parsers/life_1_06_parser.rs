@@ -28,7 +28,9 @@ impl Parser for Life106Parser {
 				map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
 
-			if line.starts_with("#Life") {
+			if line.len() == 0 {
+				// ignore
+			} else if line.starts_with("#Life") {
 				check_file_format(line)?;
 			} else if regex.is_match(line) {
 				let coords: Vec<&str> = line.split_whitespace().collect();
@@ -38,6 +40,10 @@ impl Parser for Life106Parser {
 					.map_err(|_| Error::from(ErrorKind::CoordinateOutOfRange(line_num)))?;
 
 				ret.add_live_cell(x, y);
+			} else if line.starts_with("#") {
+				// ignore
+			} else {
+				bail!(ErrorKind::MalformedLine(line_num))
 			}
 		}
 
@@ -100,6 +106,36 @@ mod test {
 			Err(Error(CoordinateOutOfRange(1), _)) => {},
 			Err(_) => panic!("Wrong error thrown!"),
 			_ => panic!("No error thrown!")
+		}
+	}
+
+	#[test]
+	fn should_fail_on_unexpected_chars() {
+		let input = Box::new("0 0\n1 1 \nYo Yo!".as_bytes());
+		let mut parser = Life106Parser::new();
+		match parser.parse(input) {
+			Err(Error(MalformedLine(3), _)) => {},
+			_ => panic!("Expected MalformedLine!")
+		}
+	}
+
+	#[test]
+	fn should_ignore_empty_lines() {
+		let input = Box::new("\n\n0 0\n1 1".as_bytes());
+		let mut parser = Life106Parser::new();
+		match parser.parse(input) {
+			Ok(_) => {},
+			_ => panic!("Expected Ok!")
+		}
+	}
+
+	#[test]
+	fn should_ignore_commented_out_lines() {
+		let input = Box::new("0 0\n1 1 \n# Yo Yo!".as_bytes());
+		let mut parser = Life106Parser::new();
+		match parser.parse(input) {
+			Ok(_) => {},
+			_ => panic!("Expected Ok!")
 		}
 	}
 }

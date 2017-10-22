@@ -27,7 +27,9 @@ impl Parser for Life105Parser {
 				.map_err(|err| errors::ErrorKind::IOError(err.kind()))?;
 			let line = line.trim();
 
-			if line.starts_with("#R") {
+			if line.len() == 0 {
+				// ignore
+			} else if line.starts_with("#R") {
 				ret.clear_rules();
 				parse_rules(line_num, &line, &mut ret)?;
 			} else if line.starts_with("#Life") {
@@ -57,6 +59,10 @@ impl Parser for Life105Parser {
 					}
 				}
 				line_in_block += 1;
+			} else if line.starts_with("#") {
+				// ignore
+			} else {
+				bail!(ErrorKind::MalformedLine(line_num))
 			}
 		}
 
@@ -247,6 +253,43 @@ mod test {
 			Err(Error(CoordinateOutOfRange(2), _)) => {},
 			Err(x) => println!("XXX {:?}", x),
 			_ => panic!("Expected CoordinateOutOfRange")
+		}
+	}
+
+	#[test]
+	fn should_fail_on_unexpected_chars_outside_blocks() {
+		let input = Box::new("this is not a life file".as_bytes());
+		let mut parser = Life105Parser::new();
+		match parser.parse(input) {
+			Err(Error(MalformedLine(1), _)) => {},
+			_ => panic!("Expected MalformedLine!")
+		}
+	}
+
+	#[test]
+	fn empty_lines_should_be_ignored() {
+		let text = r#"
+#N
+
+#P -1 -1
+.*.
+"#;
+		let input = Box::new(text.as_bytes());
+		let mut parser = Life105Parser::new();
+		match parser.parse(input) {
+			Ok(_) => {},
+			_ => panic!("Expected Ok!")
+		}
+	}
+
+	#[test]
+	fn commented_out_lines_should_be_ignored() {
+		let text = "# I am not a malformed line";
+		let input = Box::new(text.as_bytes());
+		let mut parser = Life105Parser::new();
+		match parser.parse(input) {
+			Ok(_) => {},
+			_ => panic!("Expected Ok!")
 		}
 	}
 }

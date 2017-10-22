@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+* Now raising `errors::ErrorKind::MalformedLine` on all unexpected chars
+* Ignoring empty and commented out lines
+
 ## 2.0.0
 * Improved handling of IO errors
 * Parsers now raise error when encountering format tag of different format
